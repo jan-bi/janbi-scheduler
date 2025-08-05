@@ -1,5 +1,13 @@
 const SCRAPER_URL = process.env.SCRAPER_URL || "http://localhost:3001/scrape";
 
+function normalizeContent(content) {
+  if (typeof content !== "string") {
+    return JSON.stringify(content);
+  }
+
+  return content.trim().toLowerCase();
+}
+
 export default async function detectChanges(savedUrl, previousValues = {}) {
   const { url, selectors } = savedUrl;
 
@@ -32,7 +40,9 @@ export default async function detectChanges(savedUrl, previousValues = {}) {
 
       changedContents.push({ selector, beforeHtml: before, afterHtml: after, tag });
 
-      if (before !== after) {
+      const isDifferent = normalizeContent(before) !== normalizeContent(after);
+
+      if (isDifferent) {
         changedSelectors.push(selector);
       }
     }
